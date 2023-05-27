@@ -11,18 +11,22 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+
 class Profesor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     cursos = relationship("Curso", backref="profesor", lazy=True)
+
 
 class Curso(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     profesor_id = db.Column(db.Integer, ForeignKey('profesor.id'), nullable=False)
 
-with app.app_context(): 
+
+with app.app_context():
     db.create_all()
+
 
 # Obtener todos los profesores
 @app.route('/profesores', methods=['GET'])
@@ -36,6 +40,7 @@ def obtener_profesores():
         })
     return jsonify(resultados)
 
+
 # Obtener un profesor por su id
 @app.route('/profesor/<id>', methods=['GET'])
 def obtener_profesor(id):
@@ -48,6 +53,7 @@ def obtener_profesor(id):
     }
     return jsonify(resultado)
 
+
 # Crear un nuevo profesor
 @app.route('/profesor', methods=['POST'])
 def crear_profesor():
@@ -56,6 +62,7 @@ def crear_profesor():
     db.session.add(profesor)
     db.session.commit()
     return jsonify({'mensaje': 'Profesor creado exitosamente'})
+
 
 # Actualizar un profesor existente
 @app.route('/profesor/<id>', methods=['PUT'])
@@ -68,6 +75,7 @@ def actualizar_profesor(id):
     db.session.commit()
     return jsonify({'mensaje': 'Profesor actualizado exitosamente'})
 
+
 # Eliminar un profesor existente
 @app.route('/profesor/<id>', methods=['DELETE'])
 def eliminar_profesor(id):
@@ -77,6 +85,7 @@ def eliminar_profesor(id):
     db.session.delete(profesor)
     db.session.commit()
     return jsonify({'mensaje': 'Profesor eliminado exitosamente'})
+
 
 # Obtener todos los cursos
 @app.route('/cursos', methods=['GET'])
@@ -91,6 +100,7 @@ def obtener_cursos():
         })
     return jsonify(resultados)
 
+
 # Obtener un curso por su id
 @app.route('/curso/<id>', methods=['GET'])
 def obtener_curso(id):
@@ -103,6 +113,7 @@ def obtener_curso(id):
         'profesor': curso.profesor.nombre
     }
     return jsonify(resultado)
+
 
 # Crear un nuevo curso
 @app.route('/curso', methods=['POST'])
@@ -117,13 +128,14 @@ def crear_curso():
     db.session.commit()
     return jsonify({'mensaje': 'Curso creado exitosamente'})
 
+
 # Actualizar un curso existente
 @app.route('/curso/<id>', methods=['PUT'])
 def actualizar_curso(id):
     curso = Curso.query.get(id)
     if not curso:
         return jsonify({'mensaje': 'Curso no encontrado'})
-    
+
     nombre = request.json['nombre']
     profesor_id = request.json['profesor_id']
     profesor = Profesor.query.get(profesor_id)
@@ -134,6 +146,7 @@ def actualizar_curso(id):
     db.session.commit()
     return jsonify({'mensaje': 'Curso actualizado exitosamente'})
 
+
 @app.route('/curso/<id>', methods=['DELETE'])
 def eliminar_curso(id):
     curso = Curso.query.get(id)
@@ -143,5 +156,6 @@ def eliminar_curso(id):
     db.session.commit()
     return jsonify({'mensaje': 'Curso eliminado exitosamente'})
 
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
